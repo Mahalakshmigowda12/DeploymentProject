@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+               script {
+                    // Copy the JAR file to the workspace
+                    sh 'sudo cp -r /root/s13sh-BookMyMovie/target /var/lib/jenkins/workspace/boot/'
+                    // Build the Docker image
+                    sh 'sudo docker build -t my-spring-boot-app -f /root/s13sh-BookMyMovie/Dockerfile /var/lib/jenkins/workspace/boot/'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    // Stop and remove existing container if exists
+                    sh 'docker stop my-spring-boot-app || true'
+                    sh 'docker rm my-spring-boot-app || true'
+                    // Run the Docker container
+                    sh 'sudo docker run -d --name my-spring-boot-app my-spring-boot-app'
+                }
+            }
+        }
+    }
+}
+
+
+
